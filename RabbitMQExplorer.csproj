@@ -8,6 +8,15 @@
     <Nullable>disable</Nullable>
     <AssemblyName>RabbitMQExplorer</AssemblyName>
     <RootNamespace>RabbitMQExplorer</RootNamespace>
+    
+    <!-- Versioning - Semantic Versioning (MAJOR.MINOR.PATCH) -->
+    <Version>1.0.2</Version>
+    <AssemblyVersion>1.0.2.0</AssemblyVersion>
+    <FileVersion>1.0.2.0</FileVersion>
+    <Product>RabbitMQ Explorer</Product>
+    <Company>asiselektronik.com.tr</Company>
+    <Copyright>Copyright © 2026 asiselektronik.com.tr</Copyright>
+    <Description>RabbitMQ monitoring and management tool with modern WinForms UI</Description>
   </PropertyGroup>
 
   <ItemGroup>

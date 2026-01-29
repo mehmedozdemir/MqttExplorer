@@ -65,14 +65,50 @@ git checkout -b [branch-tipi]/[açıklama]
    - UI responsive olmalı
    - Hata mesajları kontrol edilmeli
 
-### 3️⃣ Kullanıcı Onayı
+### 3️⃣ Versiyonlama
+
+**Her commit öncesi versiyon numarasını güncelle:**
+
+1. **RabbitMQExplorer.csproj Güncelle**
+   ```xml
+   <Version>X.Y.Z</Version>
+   <AssemblyVersion>X.Y.Z.0</AssemblyVersion>
+   <FileVersion>X.Y.Z.0</FileVersion>
+   ```
+
+2. **Versiyon Artırma Kuralları (Semantic Versioning)**
+   - **PATCH (0.0.X)**: Bug fix, refactoring, performance
+     - Örnek: `1.0.0` → `1.0.1`
+   - **MINOR (0.X.0)**: Yeni özellik (backward compatible)
+     - Örnek: `1.0.0` → `1.1.0`
+   - **MAJOR (X.0.0)**: Breaking changes
+     - Örnek: `1.0.0` → `2.0.0`
+
+3. **CHANGELOG.md Güncelle**
+   ```markdown
+   ## [X.Y.Z] - YYYY-MM-DD
+   
+   ### ✨ Added / 🔧 Fixed / 🔄 Changed / 🗑️ Removed
+   - Değişiklik açıklaması
+   ```
+
+**Versiyon Kategori Tablosu:**
+
+| Branch Tipi | Değişiklik Türü | Versiyon | Örnek |
+|------------|-----------------|----------|-------|
+| `bugfix/*` | Bug düzeltme | PATCH | 1.0.0 → 1.0.1 |
+| `refactor/*` | Kod iyileştirme | PATCH | 1.0.0 → 1.0.1 |
+| `feature/*` | Yeni özellik | MINOR | 1.0.0 → 1.1.0 |
+| `docs/*` | Sadece dökümantasyon | - | Değişmez |
+
+### 4️⃣ Kullanıcı Onayı
 
 - Geliştirme tamamlandıktan ve testler başarılı olduktan sonra
 - Kullanıcıya **"Test etmeye hazır, onay bekleniyor"** mesajı gönder
 - Kullanıcı uygulamayı test etsin
 - Kullanıcıdan **açık onay** bekle
 
-### 4️⃣ Commit İşlemi
+### 5️⃣ Commit İşlemi
 
 **Kullanıcı onayı alındıktan sonra:**
 
@@ -99,14 +135,16 @@ git checkout -b [branch-tipi]/[açıklama]
   - Örnek: `style: Queue browser grid renkleri güncellendi`
 - `perf: [açıklama]` - Performans iyileştirmesi
   - Örnek: `perf: Mesaj yükleme optimizasyonu`
+- `chore: [açıklama]` - Build, versiyon, dependency güncellemeleri
+  - Örnek: `chore: Version 1.0.3'e güncellendi`
 
-### 5️⃣ Push İşlemi
+### 6️⃣ Push İşlemi
 
 ```bash
 git push origin [branch-adı]
 ```
 
-### 6️⃣ Merge İşlemi
+### 7️⃣ Merge İşlemi
 
 1. **Main Branch'e Geç**
    ```bash
@@ -123,7 +161,13 @@ git push origin [branch-adı]
    git push origin main
    ```
 
-4. **Branch'i Sil (Opsiyonel)**
+4. **Git Tag Oluştur (Versiyon için)**
+   ```bash
+   git tag -a v1.0.X -m "Version 1.0.X - [Açıklama]"
+   git push origin v1.0.X
+   ```
+
+5. **Branch'i Sil (Opsiyonel)**
    ```bash
    git branch -d [branch-adı]
    git push origin --delete [branch-adı]
@@ -147,6 +191,8 @@ git push origin [branch-adı]
 - [ ] Geliştirme tamamlandı mı?
 - [ ] **Code review yapıldı mı?** (SOLID, Clean Code, Error Handling, Memory Management)
 - [ ] **Code review bulguları düzeltildi mi?**
+- [ ] **Versiyon numarası güncellendi mi?** (.csproj dosyası)
+- [ ] **CHANGELOG.md güncellendi mi?**
 - [ ] `dotnet build` başarılı mı?
 - [ ] `dotnet run` ile uygulama çalışıyor mu?
 - [ ] Yeni özellik test edildi mi?
@@ -157,6 +203,7 @@ git push origin [branch-adı]
 - [ ] Commit mesajı uygun formatta mı?
 - [ ] Push yapıldı mı?
 - [ ] Merge işlemi tamamlandı mı?
+- [ ] **Git tag oluşturuldu mu?** (Versiyon için)
 
 ---
 
@@ -169,37 +216,46 @@ git checkout -b feature/message-search
 # 2. Geliştirmeyi yap
 # ... kod değişiklikleri ...
 
-# 3. CODE REVIEW YAP
+# 3. VERSİYON GÜNCELLE
+# RabbitMQExplorer.csproj: 1.0.0 → 1.1.0 (yeni özellik)
+# CHANGELOG.md: [1.1.0] bölümü ekle
+
+# 4. CODE REVIEW YAP
 # - SOLID prensipleri kontrol et
 # - Clean Code standartlarına uy
 # - Error handling gözden geçir
 # - Resource management kontrol et
 # - Memory leak olasılıklarını araştır
 
-# 4. Bulguları düzelt
+# 5. Bulguları düzelt
 # ... code review bulgularını gider ...
 
-# 5. Build ve test
+# 6. Build ve test
 dotnet build RabbitMQExplorer.csproj
 dotnet run --project RabbitMQExplorer.csproj
 
-# 6. Kullanıcıdan onay bekle
+# 7. Kullanıcıdan onay bekle
 # "Test etmeye hazır, onay bekleniyor"
 
-# 7. Onay alındıktan sonra commit
+# 8. Onay alındıktan sonra commit
 git add .
 git commit -m "feat: Mesaj arama özelliği eklendi"
 
-# 8. Push
+# 9. Push
 git push origin feature/message-search
 
-# 9. Merge
+# 10. Merge
 git checkout main
 git merge feature/message-search
 git push origin main
 
-# 10. Branch'i temizle (opsiyonel)
+# 11. Git Tag oluştur
+git tag -a v1.1.0 -m "Version 1.1.0 - Mesaj arama özelliği"
+git push origin v1.1.0
+
+# 12. Branch'i temizle (opsiyonel)
 git branch -d feature/message-search
+git push origin --delete feature/message-search
 ```
 
 ---
@@ -207,9 +263,10 @@ git branch -d feature/message-search
 ## 🎯 Proje Hedefleri
 
 - **Kod Kalitesi**: Her commit çalışan, test edilmiş kod içermeli
-- **İzlenebilirlik**: Git geçmişi anlaşılır ve düzenli olmalı
+- **İzlenebilirlik**: Git geçmişi anlaşılır ve düzenli olmalı, her versiyon CHANGELOG.md'de dokümante edilmeli
 - **Güvenlik**: Main branch her zaman kararlı olmalı
 - **İşbirliği**: Değişiklikler dokümante edilmeli
+- **Versiyonlama**: Semantic Versioning'e uygun versiyon yönetimi
 
 ---
 
@@ -218,6 +275,15 @@ git branch -d feature/message-search
 - [Git Branch Strategy](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow)
 - [Conventional Commits](https://www.conventionalcommits.org/)
 - [.NET Build Best Practices](https://learn.microsoft.com/en-us/dotnet/core/tools/)
+- [Semantic Versioning](https://semver.org/)
+- [Keep a Changelog](https://keepachangelog.com/)
+
+---
+
+**Son Güncelleme**: 30 Ocak 2026  
+**Proje**: RabbitMQ Explorer  
+**Geliştirici**: Senior Software Engineer  
+**Mevcut Versiyon**: 1.0.2
 
 ---
 
