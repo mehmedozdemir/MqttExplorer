@@ -123,13 +123,27 @@ namespace RabbitMQExplorer
                 
                 EnableNavigationButtons(false);
                 
-                // Close all tabs
-                mainTabControl.TabPages.Clear();
+                // Close and dispose all tabs properly
+                CloseAllTabs();
             }
             catch (Exception ex)
             {
                 UIHelper.ShowError($"Bağlantı kesme hatası:\n{ex.Message}");
             }
+        }
+        
+        private void CloseAllTabs()
+        {
+            // Dispose all controls in tabs to prevent memory leaks
+            foreach (TabPage tab in mainTabControl.TabPages)
+            {
+                foreach (Control control in tab.Controls)
+                {
+                    control.Dispose();
+                }
+                tab.Dispose();
+            }
+            mainTabControl.TabPages.Clear();
         }
 
         private void EnableNavigationButtons(bool enabled)
@@ -202,8 +216,22 @@ namespace RabbitMQExplorer
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            _rabbitMQService?.Dispose();
-            base.OnFormClosing(e);
+            try
+            {
+                // Close all tabs and dispose controls
+                CloseAllTabs();
+                
+                // Dispose RabbitMQ service
+                _rabbitMQService?.Dispose();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Form closing error: {ex.Message}");
+            }
+            finally
+            {
+                base.OnFormClosing(e);
+            }
         }
     }
 }

@@ -191,9 +191,19 @@ namespace RabbitMQExplorer.Forms
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
+            if (disposing)
             {
-                components.Dispose();
+                if (_refreshTimer != null)
+                {
+                    _refreshTimer.Stop();
+                    _refreshTimer.Dispose();
+                    _refreshTimer = null;
+                }
+                
+                if (components != null)
+                {
+                    components.Dispose();
+                }
             }
             base.Dispose(disposing);
         }

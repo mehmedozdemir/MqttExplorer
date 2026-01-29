@@ -15,7 +15,7 @@ namespace RabbitMQExplorer.Services
     {
         private IConnection? _connection;
         private IModel? _channel;
-        private readonly HttpClient _httpClient;
+        private static readonly HttpClient _httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
         private ConnectionProfile? _currentProfile;
 
         public bool IsConnected => _connection?.IsOpen ?? false;
@@ -23,7 +23,7 @@ namespace RabbitMQExplorer.Services
 
         public RabbitMQService()
         {
-            _httpClient = new HttpClient();
+            // HttpClient is now static to prevent socket exhaustion
         }
 
         public async Task<bool> ConnectAsync(ConnectionProfile profile)

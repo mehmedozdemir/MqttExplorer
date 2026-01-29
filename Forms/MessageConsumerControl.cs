@@ -159,15 +159,33 @@ namespace RabbitMQExplorer.Forms
 
         private void OnMessageReceived(object? sender, BasicDeliverEventArgs e)
         {
+            if (e == null) return;
+            
             try
             {
                 // This runs on a background thread, so we need to invoke to UI thread
                 if (this.InvokeRequired)
                 {
-                    this.Invoke(new Action(() => OnMessageReceived(sender, e)));
+                    // Use BeginInvoke to prevent blocking and recursive issues
+                    this.BeginInvoke(new Action(() => ProcessReceivedMessage(e)));
                     return;
                 }
 
+                ProcessReceivedMessage(e);
+            }
+            catch (Exception ex)
+            {
+                // Can't show UI here if disposed, just log
+                System.Diagnostics.Debug.WriteLine($"Mesaj işleme hatası: {ex.Message}");
+            }
+        }
+        
+        private void ProcessReceivedMessage(BasicDeliverEventArgs e)
+        {
+            try
+            {
+                if (e == null || e.Body.IsEmpty) return;
+                
                 var body = Encoding.UTF8.GetString(e.Body.ToArray());
                 
                 var message = new MessageInfo
@@ -219,8 +237,11 @@ namespace RabbitMQExplorer.Forms
             }
             catch (Exception ex)
             {
-                lblStatus.Text = $"Mesaj işleme hatası: {ex.Message}";
-                lblStatus.ForeColor = UIHelper.Colors.Error;
+                if (!this.IsDisposed)
+                {
+                    lblStatus.Text = $"Mesaj işleme hatası: {ex.Message}";
+                    lblStatus.ForeColor = UIHelper.Colors.Error;
+                }
             }
         }
 
@@ -380,9 +401,25 @@ namespace RabbitMQExplorer.Forms
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
+            if (disposing)
             {
-                components.Dispose();
+                // Stop consuming and cleanup
+                if (_isConsuming)
+                {
+                    StopConsuming();
+                }
+                
+                // Unsubscribe event handler to prevent memory leak
+                if (_consumer != null)
+                {
+                    _consumer.Received -= OnMessageReceived;
+                    _consumer = null;
+                }
+                
+                if (components != null)
+                {
+                    components.Dispose();
+                }
             }
             base.Dispose(disposing);
         }
